@@ -1,0 +1,67 @@
+---
+title: "Reporte Módulo Introducción a Lenguaje R" 
+author: "Felipe Vivas"
+date: "2021/12/16"
+output: html_document
+---
+
+## Identificación de sentimientos generados por un evento deportivo a partir de los mensjaes posteados en Twitter sobre el mismo
+
+El objetivo del proyecto establecer si usando como base los tweets posteados durante un evento deportivo, podemos listar los sentimientos que se puedan identificar en los usuarios de la plataforma.
+
+Para esto, utilizaremos la base de datos que encontamos en Kaggle de los ***Tweets durante el encuentro Real Madrid vs Liverpool 2018*** (Vivancos, X. V. (2018, May 26). Tweets during Real Madrid vs Liverpool. Kaggle. <https://www.kaggle.com/xvivancos/tweets-during-r-madrid-vs-liverpool-ucl-2018?select=TweetsChampions.json)>
+
+### LIbrerias
+
+En la generación del presente informe Usaremos las siguientes librerías:
+
+```{r message=FALSE}
+#librarys
+library(DT)
+library(readxl)
+library(tidyverse)
+```
+
+```{r echo=FALSE}
+#lectura de datos
+# ![](https://www.poli.edu.co/sites/default/files/logos/logo-poli-politecnico-grancolombiano2018.png)
+# {r, echo=FALSE, warning=FALSE,message=FALSE}
+# data_tweets = read_excel("Data/data_tweets.xlsx")
+dtFields = read_excel("Data/data_fields.xlsx")
+```
+
+### Descripción de dimensiones y métricas de la base de datos **data_tweets**
+
+La base de datos construída usando como base la fuente en Kaggel se ha estructurado de la siguiente manera:
+
+```{r}
+DT::datatable(dtFields, options = list(pageLength = 20))
+
+```
+
+### Principales incidencias en el levantamiento de la base de datos
+
+Los principales inconvenientes al momento de leer el archivo fuente fueron:
+
+- Formato JSON con registros separados por lineas en blanco.
+  - Este modelo de almacenamiento de los registros en el archivo impide su lectura completa usando las liberias/ procesos normales. Se soluciona con los procesos implementados en Python para realizar lectura liena por liena. Cada linea es un registro JSON que se transforma e incorpora en el archivo de salida ***data_tweets***
+- Dentro de la información disponible, los datos de _location_ de _lang_ correponden a información que el usuario ingresa libremente, situación que obliga a aplicar una normalización de la informción así:
+  - ***location***: La ubicación del usuario es un campo de respuesta abierta, por lo que para normalizar la informacion en una primera instancia se preapra un listado con los nombres de 249 países y se aplica un algoritmo que busque el nombre del país dentro del texto de _location_. Se actualiza la columna ***country*** con el nombre normalizado de la lista.
+  - ***lang***: El idioma indicado por el usuario en la plataforma. Al ser un campo de respuesta abierta, existe gran cantidad de respuestas, para las cuales se aplicó la siguiente clasificación sobre la columna ***language***: 
+    - ***english***: Todos los registros que tienen lang = 'en', 'en-AU', 'en-gb','en-IN'','en-US'
+    - ***spanish***: Todos los registros que tienen lang = 'es', 'es-MX'
+    - ***other***: Todos los demás registros
+  - ***tweettext***: El texto del mensaje posteado en la plataforma. Sobre este campo vamos a correr los algoritmos de análsis de sentimientos. Encontramos elementos gramaticales que se convierten en texto "basura" como los https://, artículos, carateres especiales, etc. Para este caso, generamos una columna ***textsentiment*** en dónde almancenaremos el resultado de la limpieza del campo en referencia.
+  - ***métricas***: Dentro del los procesos que se están armando, una de las opciones es la de los análisis de métricas como _followers_, _tweets_, etc. Al tratar de analizar la información, por ejemplo con histogramas, diagramas de caja, gráficos de dispersión, vemos que los valores generan tendencias que desfiguran los análisis. Para solucionarlo, se van aplicar rangos de datos a finde tener una clasificación que permita este tipo de análisis.
+
+
+### Tratamientos de datos
+
+### Hipótesis: modificación, profundización
+Profundización sobre las hipótesis y como a través del tratamiento de los datos podemos llegar a resolverlas
+
+### Conclusiones
+
+-----
+Fin del documento
+-----

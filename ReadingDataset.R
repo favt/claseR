@@ -1,6 +1,7 @@
 #library
 library(tidyverse)
 library(readxl)
+library(ggplot2)
 
 
 ####################################
@@ -22,8 +23,20 @@ pivot_country = pivot_country %>% mutate(tweets_share = total_tweets / sum(total
 summary(pivot_country)
 
 #histogramas (limpiar data extremos)
-hist(x = pivot_country$followers, main = "Histograma followers total")
-hist(x = pivot_country$total_tweets, main = "Histograma tweets total")
+# hist(x = pivot_country$followers, main = "Histograma followers total")
+# hist(x = pivot_country$total_tweets, main = "Histograma tweets total")
+
+ggplot(pivot_base) +
+  geom_bar(aes(x = language,
+                     y=mean(total_tweets)),  # para que el área sea 1
+                 bins=10,
+                 fill='lightblue',
+                 col='black') +
+  labs(x = 'Notas de 2009', y = 'Frecuencias', title = 'Histograma') +
+  facet_wrap( ~ language, nrow = 3) +
+  theme_minimal() +  
+  theme(panel.grid = element_blank())  # elimina grid de fondo
+
 
 #dispersion (limpiar data extremos)
 plot(x = pivot_country$total_tweets, y = pivot_country$followers, main = "Relación tweets / followers total")
