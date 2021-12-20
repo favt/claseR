@@ -9,7 +9,7 @@ output: html_document
 
 El objetivo del proyecto establecer si usando como base los tweets posteados durante un evento deportivo, podemos listar los sentimientos que se puedan identificar en los usuarios de la plataforma.
 
-Para esto, utilizaremos la base de datos que encontramos en Kaggle de los ***Tweets durante el encuentro Real Madrid vs Liverpool 2018*** (Vivancos, X. V. (2018, May 26). Tweets during Real Madrid vs Liverpool. Kaggle. <https://www.kaggle.com/xvivancos/tweets-during-r-madrid-vs-liverpool-ucl-2018?select=TweetsChampions.json)>
+Para esto, utilizaremos la base de datos que encontramos en Kaggle de los ***Tweets durante el encuentro Real Madrid vs Liverpool 2018*** (Vivancos, X. V. (2018, May 26). Tweets during Real Madrid vs Liverpool. Kaggle.  <https://www.kaggle.com/xvivancos/tweets-during-r-madrid-vs-liverpool-ucl-2018?select=TweetsChampions.json)>
 
 ### Librerias
 
@@ -72,11 +72,14 @@ Adicionalmente, la cantidad de observaciones en la data cruda, genera lentitud e
 En la base de datos creamos las columnas _language, textsentiment, sentiment, country_ para clasificar y analizar la información. El idioma se ha clasificado como se indicó anteriormente así: ***english*** = en', 'en-AU', 'en-gb','en-IN'','en-US'; ***spanish*** = 'es', 'es-MX'. Igualmente ya se ha explicado la clasificación del país se ha clasificado a partir de un listado inicial de 249 opciones.
 La limpieza del ***texttweet*** se reflejará en el campo ***textsentiment** aplicando los siguientes algoritmos:
 
+
 Como primer paso, filtramos los tweets clasificados en ***english***
+
 ```{r}
 # filtro de idioma reduce de 343,866 obs a 211,044
 data_tweets_EN = data_tweets %>% select(screen_name, language, tweettext, textsentiment) %>% filter(language == "english") 
 ```
+
 Sobre el conjunto de datos filtrado, aplicamos la limpieza del texto posteado:
 ```{r}
 # limpiar url / tags
@@ -110,6 +113,7 @@ DT::datatable(head(data_Unique))
 ```
 
 El siguiente paso aplicado corresponde a la limpieza de los _stop words_ o palabras que corresponden a adverbios, conjunciones, artículos, preposiciones.
+
 ```{r warning=FALSE}
 data_Unique.corpus = data_Unique %>% tm::VectorSource() %>% tm::Corpus()
 
@@ -133,7 +137,6 @@ data_Unique.Frequency = data_Unique.corpus.clean %>%
 DT::datatable(head(data_Unique.Frequency))
 
 ```
-
 
 
 
@@ -238,6 +241,7 @@ El siguiente paso es seleccionar las librerías y diccionarios que permitan una 
 - La segmentación de información beneficia en manejo de los análisis de datos al permitir obtener resultados acotados y detallados.
 - Las métricas obtenidas desde la plataforma y referentes a publicaciones sobre eventos deportivos, pueden ser una fuente alterna para establecer estrategías de publicidad digital teniendo en cuenta que los datos permiten la trazabilidad de las tendencias durante la duración de los mismos.
 - Es claro que la limpieza de casos para esta base de datos debe tener un trabajo más profundo a fin de permitir información más limpia ya que como en los primeros resúmenes se aprecia, los términos que puedan aportar y ensuciar los resultados tienen bastante representación.
+
 
 
 
