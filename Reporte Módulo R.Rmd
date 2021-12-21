@@ -30,6 +30,7 @@ library(wordcloud)
 library(RColorBrewer)
 library(ggwordcloud)
 library(treemapify)
+library(textdata)
 
 ```
 
@@ -160,7 +161,7 @@ Se evidencia en este primer gráfico que la cantidad de textos que se relacionan
 Aplicando un filtrado de palabras relacionadas a jugadores, equipos, evento vemos:
 
 ```{r warning=FALSE}
-filters = c("liverpool","karius","ronaldo","bale","salah","ramos","madrid","sergio","real","gareth","cristiano","champions","soccer","mane")
+filters = c("liverpool","karius","ronaldo","bale","salah","ramos","madrid","sergio","real","gareth","cristiano","champions","soccer","mane","zidane")
 data_Unique.corpus.clean = data_Unique.corpus %>% 
   tm_map(removeWords, stopwords("english")) %>% # limpiar stopwords
   tm_map(removeWords, filters) %>% # limpiar textos particulares
@@ -231,8 +232,35 @@ En este punto también podemos definir opciones alternas al análisis de sentimi
 
 También al combinar otras métricas como followers, podemos inferir el impacto que los sentimientos evaluados puedan generar en los usuarios expuestos a las publicaciones.   
 
-El siguiente paso es seleccionar las librerías y diccionarios que permitan una clasificación de sentimientos acertada, dependiendo claramente del nivel de detalle enfocando la evaluación en resultados que faciliten la confirmación de la hipótesis.
 
+
+El siguiente paso es seleccionar las librerías y diccionarios que permitan una clasificación de sentimientos acertada, dependiendo claramente del nivel de detalle enfocando la evaluación en resultados que faciliten la confirmación de la hipótesis. Utilizaremos el análisis de sentimientos disponible en el paquete ***tidytext*** incorporando dos de las opciones de clasificación disponibles: ***bing*** y ***nrc***
+
+```{r}
+data_Unique.Range = data_Unique.Frequency %>% filter(freq >= 100 & freq <= 5000) %>% arrange(desc(freq))
+data_Unique.Range = data_Unique.Range %>% left_join(get_sentiments("bing"), by="word") %>% left_join(get_sentiments("nrc"), by="word")
+
+DT::datatable(head(data_Unique.Range))
+```
+
+Como se aprecia en el nuevo conjunto de datos, el uso de estas dos opciones nos permite aplicar aplicar un análisis con base en si las palabras son positivas/ negativas ( _sentiment.x_ ) o si exploramos análisis en los que el tipo de sentimiento que nos provee mayor detalle ( _sentiment.y_ ):
+
+```{r}
+
+ggplot(data = data_Unique.Range %>% filter(!is.na(sentiment.x)), mapping = aes(x = sentiment.x, fill = freq)) +
+  geom_bar(alpha = 1/5, position = "identity", color = 'darkslategray', fill = 'skyblue2')+
+  labs(title="Sentimiento Positivo/ Negativo (gráfico 5)", x="")
+
+
+ggplot(data = data_Unique.Range %>% filter(!is.na(sentiment.y)), mapping = aes(x = sentiment.y, fill = freq)) +
+  geom_bar(alpha = 1/5, position = "identity", color = 'darkslategray', fill = 'green')+
+  labs(title="Sentimiento Detallado (gráfico 6)", x="")
+
+```
+
+Vemos que el uso de _sentimientos detallados_ (gráfico 6) puede darnos más herramientas de análisis que la clasificación binaria de _positivo/ negativo_ del gráfico 5.
+
+En este punto podemos decir que si es posible identificar sentimientos a partir de los mensajes posteados en la plataforma de Twitter, gracias a la información que hemos logrado clasificar, esto sin haber profundizado en la clasificación y enriquecimiento de los diccionarios utilizados para este primer análisis.
 
 ### Conclusiones
 - Un eficiente resultado depende directamente de la calidad de la información recolectada.

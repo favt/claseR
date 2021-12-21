@@ -11,6 +11,7 @@ library(wordcloud)
 library(RColorBrewer)
 library(ggwordcloud)
 library(treemapify)
+library(textdata)
 
 ####################################
 # levantar la base de datos xlsx
@@ -43,16 +44,17 @@ data_tweets_EN = data_tweets_EN %>% mutate(textsentiment = str_replace_all(texts
 data_tweets_EN = data_tweets_EN %>% mutate(textsentiment = str_replace(textsentiment, "RT ", ""))
 data_tweets_EN = data_tweets_EN %>% mutate(textsentiment = trimws(textsentiment))
 
-sw = stop_words %>% select(word)
+# sw = stop_words %>% select(word)
 
 # unique tweets
 data_Unique = data_tweets_EN %>% filter(nchar(textsentiment) > 10) %>% distinct(textsentiment=tolower(textsentiment))
 
 data_Unique.corpus = data_Unique %>% tm::VectorSource() %>% tm::Corpus()
 
+filters = c("liverpool","karius","ronaldo","bale","salah","ramos","madrid","sergio","real","gareth","cristiano","champions","soccer","mane")
 data_Unique.corpus.clean = data_Unique.corpus %>% 
   tm_map(removeWords, stopwords("english")) %>% # limpiar stopwords
-  tm_map(removeWords, c("will", "let", "ring")) %>%   # limpiar palabras puntuales
+  tm_map(removeWords, filters) %>% # limpiar textos particulares
   tm_map(removePunctuation) %>%   # limpiar signos de puntuación
   tm_map(stripWhitespace)   # eliminar espacios en blanco dobles
 
@@ -62,7 +64,11 @@ data_Unique.Frequency = data_Unique.corpus.clean %>%
   as.matrix() %>% as.data.frame() %>% 
   tibble::rownames_to_column() %>%
   dplyr::rename(word = 1, freq = 2) %>%
-  dplyr::arrange(desc(freq)) %>% top_n(50)
+  dplyr::arrange(desc(freq)) 
+# %>% top_n(50)
+
+data_Unique.Range = data_Unique.Frequency %>% filter(freq >= 100 & freq <= 5000) %>% arrange(word) #arrange(desc(freq)) 
+data_Unique.Range = data_Unique.Range %>% left_join(get_sentiments("bing"), by="word") %>% left_join(get_sentiments("nrc"), by="word")
 
 
 ggplot(data_Unique.Frequency, aes(area = freq, fill = word, label =  paste(word, freq, sep = "\n"))) +
